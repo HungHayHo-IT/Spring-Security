@@ -11,9 +11,25 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class ProjectSecurityConfig {
 
+    public final String[] publicUrl={
+            "/myAccount",
+            "/myBalance",
+            "/myLoans",
+            "/myCards"
+    };
+    public final String[] privateUrl={
+            "/notices",
+            "/contact",
+            "/error"
+
+    };
+
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
-        http.authorizeHttpRequests(request->request.anyRequest().authenticated());
+        http.authorizeHttpRequests(request->request
+                .requestMatchers(publicUrl).authenticated()
+                .requestMatchers(privateUrl).permitAll()
+        );
         http.formLogin(withDefaults());
         http.httpBasic(withDefaults());
         return http.build();
