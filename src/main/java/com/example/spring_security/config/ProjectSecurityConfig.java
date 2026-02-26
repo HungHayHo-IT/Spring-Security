@@ -30,8 +30,15 @@ public class ProjectSecurityConfig {
                 .requestMatchers(publicUrl).authenticated()
                 .requestMatchers(privateUrl).permitAll()
         );
-        http.formLogin(withDefaults());
-        http.httpBasic(withDefaults());
+        http.formLogin(
+                withDefaults()
+        );
+
+
+
+        http.httpBasic(
+                withDefaults()
+        );
         return http.build();
     }
 }
