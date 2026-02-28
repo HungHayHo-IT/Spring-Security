@@ -23,12 +23,14 @@ public class ProjectSecurityConfig {
     public final String[] privateUrl={
             "/notices",
             "/contact",
-            "/error"
+            "/error",
+            "/register"
 
     };
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
+        http.csrf(csrfConfig->csrfConfig.disable());
         http.authorizeHttpRequests(request->request
                 .requestMatchers(publicUrl).authenticated()
                 .requestMatchers(privateUrl).permitAll()
