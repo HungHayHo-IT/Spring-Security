@@ -7,7 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService; // Import thêm interface này
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +19,7 @@ public class EazyBankUserDetailsService implements UserDetailsService { // Thêm
 
     // Không cần @Autowired vì đã có @RequiredArgsConstructor của Lombok
     private final CustomerRepository customerRepository;
+
 
     @Override // Khai báo chuẩn phương thức của interface
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { // Viết thường chữ 'l' và đổi throws
