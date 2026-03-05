@@ -1,7 +1,7 @@
 package com.example.spring_security.config;
 
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,7 +25,7 @@ public class EazyBankUsernamePwdAuthenticationProvider implements Authentication
     @Override
     public @Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
-        String pwd = authentication.getPrincipal().toString();
+        String pwd = authentication.getCredentials().toString();
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         if(passwordEncoder.matches(pwd,userDetails.getPassword())){
             return new UsernamePasswordAuthenticationToken(username,pwd,userDetails.getAuthorities());
