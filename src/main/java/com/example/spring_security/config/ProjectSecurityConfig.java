@@ -28,13 +28,15 @@ public class ProjectSecurityConfig {
             "/notices",
             "/contact",
             "/error",
-            "/register"
+            "/register",
+            "/invalidSession"
 
     };
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
-        http.csrf(csrfConfig->csrfConfig.disable());
+        http.sessionManagement(smc->smc.invalidSessionUrl("/invalidSession")) // het phien dang nhap chuyen den trang nay
+                .csrf(csrfConfig->csrfConfig.disable());
         http.authorizeHttpRequests(request->request
                 .requestMatchers(publicUrl).authenticated()
                 .requestMatchers(privateUrl).permitAll()

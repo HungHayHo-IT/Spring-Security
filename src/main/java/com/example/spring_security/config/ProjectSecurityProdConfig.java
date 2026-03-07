@@ -19,10 +19,12 @@ public class ProjectSecurityProdConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http .csrf(csrfConfig -> csrfConfig.disable())
+
+        http .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession"))
+                .csrf(csrfConfig -> csrfConfig.disable())
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
-                        .requestMatchers("/notices", "/contact", "/error", "/register").permitAll());
+                        .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(hbc->hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         return http.build();
