@@ -35,7 +35,7 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
-        http.sessionManagement(smc->smc.invalidSessionUrl("/invalidSession")) // het phien dang nhap chuyen den trang nay
+        http.sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
                 .csrf(csrfConfig->csrfConfig.disable());
         http.authorizeHttpRequests(request->request
                 .requestMatchers(publicUrl).authenticated()
