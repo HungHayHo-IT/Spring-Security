@@ -10,6 +10,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+// chu xac thuc chua dang nhap sai pass username,token het han v...v..
 public class CustomBasicAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
