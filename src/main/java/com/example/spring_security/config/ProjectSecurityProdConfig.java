@@ -11,8 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @Profile("prod")
 public class ProjectSecurityProdConfig {
@@ -24,8 +22,8 @@ public class ProjectSecurityProdConfig {
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
-                        .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession").permitAll());
-        http.formLogin(withDefaults());
+                        .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession","/login/**").permitAll());
+        http.formLogin(flc->flc.loginPage("/login"));
         http.httpBasic(hbc->hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         return http.build();
     }
