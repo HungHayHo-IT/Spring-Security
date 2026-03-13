@@ -2,6 +2,9 @@ package com.example.spring_security.config;
 
 import com.example.spring_security.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import com.example.spring_security.exceptionhandling.CustomeAccessDeniedHandler;
+import com.example.spring_security.handler.CustomAuthenticationFailureHandler;
+import com.example.spring_security.handler.CustomAuthenticationSucessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -13,8 +16,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
 @Configuration
+@RequiredArgsConstructor
 @Profile("!prod")
 public class ProjectSecurityConfig {
+
+    private final CustomAuthenticationSucessHandler authenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler authenticationFailureHandler;
 
     public final String[] publicUrl={
             "/myAccount",
@@ -42,7 +49,8 @@ public class ProjectSecurityConfig {
         );
         http.formLogin(
                 flc->flc.loginPage("/login").usernameParameter("userId").passwordParameter("secretPwd").defaultSuccessUrl("/myAccount").failureUrl("/login?error=true")
-        );
+                        .successHandler(authenticationSuccessHandler).failureUrl(authenticationFailureHandler.toString()
+        ));
         http.httpBasic(
             hbc->hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint())
         );
