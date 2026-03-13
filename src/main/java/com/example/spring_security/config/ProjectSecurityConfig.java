@@ -12,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @Profile("!prod")
 public class ProjectSecurityConfig {
@@ -43,7 +41,7 @@ public class ProjectSecurityConfig {
 
         );
         http.formLogin(
-                withDefaults()
+                flc->flc.loginPage("/login").usernameParameter("userId").passwordParameter("secretPwd").defaultSuccessUrl("/myAccount").failureUrl("/login?error=true")
         );
         http.httpBasic(
             hbc->hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint())
