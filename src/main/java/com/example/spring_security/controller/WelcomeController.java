@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+//@CrossOrigin(origins = "http://127.0.0.1:5500") fix loi cors bang crossorigin
 public class WelcomeController{
     @GetMapping("/welcome")
     public String sayWelcome(){
