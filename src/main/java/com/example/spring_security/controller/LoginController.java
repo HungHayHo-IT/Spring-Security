@@ -9,12 +9,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class LoginController {
 
     @GetMapping("/login")
-    public String login(@RequestParam(value = "error" , required = false) String error, Model model) {
+    public String login(@RequestParam(value = "error" , required = false) String error,
+            @RequestParam(value = "logout" , required = false) String logout
+            ,Model model) {
         // Chỉ cần return tên file (không cần đuôi .html)
         // nếu bạn đã cài đặt Thymeleaf và để file trong thư mục templates/
         String errorMessge = null;
         if(null != error){
             errorMessge = "username or password is correct";
+        }
+
+        if(null!=logout){
+            errorMessge = "successfully logout";
         }
         model.addAttribute("errorMessge",errorMessge);
         return "login";

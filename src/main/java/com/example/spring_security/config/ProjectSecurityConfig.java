@@ -4,6 +4,7 @@ import com.example.spring_security.exceptionhandling.CustomBasicAuthenticationEn
 import com.example.spring_security.exceptionhandling.CustomeAccessDeniedHandler;
 import com.example.spring_security.handler.CustomAuthenticationFailureHandler;
 import com.example.spring_security.handler.CustomAuthenticationSucessHandler;
+import com.example.spring_security.handler.CustomLogoutSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ public class ProjectSecurityConfig {
 
     private final CustomAuthenticationSucessHandler authenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
+    private final CustomLogoutSuccessHandler logoutSuccessHandler;
 
     public final String[] publicUrl={
             "/myAccount",
@@ -49,8 +51,8 @@ public class ProjectSecurityConfig {
         );
         http.formLogin(
                 flc->flc.loginPage("/login").usernameParameter("userId").passwordParameter("secretPwd").defaultSuccessUrl("/myAccount").failureUrl("/login?error=true")
-                        .successHandler(authenticationSuccessHandler).failureUrl(authenticationFailureHandler.toString()
-        ));
+                        .successHandler(authenticationSuccessHandler).failureHandler(authenticationFailureHandler
+        )).logout(loc->loc.logoutUrl("/logout").logoutSuccessHandler(logoutSuccessHandler).invalidateHttpSession(true).clearAuthentication(true).deleteCookies("JSESSIONID"));
         http.httpBasic(
             hbc->hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint())
         );

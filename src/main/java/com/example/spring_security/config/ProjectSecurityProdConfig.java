@@ -1,6 +1,7 @@
 package com.example.spring_security.config;
 
 import com.example.spring_security.exceptionhandling.CustomBasicAuthenticationEntryPoint;
+import com.example.spring_security.exceptionhandling.CustomeAccessDeniedHandler;
 import com.example.spring_security.handler.CustomAuthenticationFailureHandler;
 import com.example.spring_security.handler.CustomAuthenticationSucessHandler;
 import lombok.RequiredArgsConstructor;
@@ -17,40 +18,61 @@ import org.springframework.security.web.authentication.password.HaveIBeenPwnedRe
 @Configuration
 @RequiredArgsConstructor
 @Profile("prod")
+
 public class ProjectSecurityProdConfig {
 
     private final CustomAuthenticationSucessHandler authenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
 
+    public final String[] publicUrl={
+            "/myAccount",
+            "/myBalance",
+            "/myLoans",
+            "/myCards"
+    };
+    public final String[] privateUrl={
+            "/notices",
+            "/contact",
+            "/error",
+            "/register",
+            "/invalidSession"
+
+    };
 
     @Bean
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        http .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true))
-                .csrf(csrfConfig -> csrfConfig.disable())
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
-                        .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession","/login/**").permitAll());
-        http.formLogin(flc->flc.loginPage("/login").usernameParameter("userId").passwordParameter("secretPwd").defaultSuccessUrl("/myAccount").failureUrl("/login?error=true")
-                .successHandler(authenticationSuccessHandler).failureHandler(authenticationFailureHandler)
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
+        http.sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
+                .csrf(csrfConfig->csrfConfig.disable());
+        http.authorizeHttpRequests(request->request
+                .requestMatchers(publicUrl).authenticated()
+                .requestMatchers(privateUrl).permitAll()
 
         );
-        http.httpBasic(hbc->hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        http.formLogin(
+                flc->flc.loginPage("/login").usernameParameter("userId").passwordParameter("secretPwd").defaultSuccessUrl("/myAccount").failureUrl("/login?error=true")
+                        .successHandler(authenticationSuccessHandler).failureHandler(authenticationFailureHandler
+                        ))
+                .logout(loc->loc.logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID"));
+        http.httpBasic(
+                hbc->hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint())
+        );
+
+        http.exceptionHandling(ehc->ehc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint())
+                .accessDeniedHandler(new CustomeAccessDeniedHandler()).accessDeniedPage("/denied")// khi nao co loi 403 se chuyen den trang nay
+        );
+
         return http.build();
     }
-
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder(){
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    /**
-     * From Spring Security 6.3 version
-     * @return
-     */
     @Bean
-    public CompromisedPasswordChecker compromisedPasswordChecker() {
+    public CompromisedPasswordChecker compromisedPasswordChecker(){
         return new HaveIBeenPwnedRestApiPasswordChecker();
     }
-
 }
