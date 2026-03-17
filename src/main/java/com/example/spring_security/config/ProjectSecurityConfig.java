@@ -31,12 +31,12 @@ public class ProjectSecurityConfig {
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
     private final CustomLogoutSuccessHandler logoutSuccessHandler;
 
-    public final String[] publicUrl={
-            "/myAccount",
-            "/myBalance",
-            "/myLoans",
-            "/myCards"
-    };
+//    public final String[] publicUrl={
+//            "/myAccount",
+//            "/myBalance",
+//            "/myLoans",
+//            "/myCards"
+//    };
     public final String[] privateUrl={
             "/notices",
             "/contact",
@@ -64,7 +64,11 @@ public class ProjectSecurityConfig {
         .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
                 .csrf(csrfConfig->csrfConfig.disable());
         http.authorizeHttpRequests(request->request
-                .requestMatchers(publicUrl).authenticated()
+                .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
+                .requestMatchers("/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
+                .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
+                .requestMatchers("/myCards").hasAuthority("VIEWCARDS")
+                .requestMatchers("/user").authenticated()
                 .requestMatchers(privateUrl).permitAll()
 
         );
