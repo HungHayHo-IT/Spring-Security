@@ -64,10 +64,10 @@ public class ProjectSecurityConfig {
         .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
                 .csrf(csrfConfig->csrfConfig.disable());
         http.authorizeHttpRequests(request->request
-                .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
-                .requestMatchers("/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
-                .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
-                .requestMatchers("/myCards").hasAuthority("VIEWCARDS")
+                .requestMatchers("/myAccount").hasRole("USER")
+                .requestMatchers("/myBalance").hasAnyRole("USER","ADMIN")
+                .requestMatchers("/myLoans").hasRole("USER")
+                .requestMatchers("/myCards").hasRole("USER")
                 .requestMatchers("/user").authenticated()
                 .requestMatchers(privateUrl).permitAll()
 
