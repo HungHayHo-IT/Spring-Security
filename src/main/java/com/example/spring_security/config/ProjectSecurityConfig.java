@@ -2,6 +2,7 @@ package com.example.spring_security.config;
 
 import com.example.spring_security.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import com.example.spring_security.exceptionhandling.CustomeAccessDeniedHandler;
+import com.example.spring_security.filter.RequestValidationBeforeFilter;
 import com.example.spring_security.handler.CustomAuthenticationFailureHandler;
 import com.example.spring_security.handler.CustomAuthenticationSucessHandler;
 import com.example.spring_security.handler.CustomLogoutSuccessHandler;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -61,6 +63,7 @@ public class ProjectSecurityConfig {
                         return config;
                     }
                 }))
+                .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
         .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
                 .csrf(csrfConfig->csrfConfig.disable());
         http.authorizeHttpRequests(request->request
