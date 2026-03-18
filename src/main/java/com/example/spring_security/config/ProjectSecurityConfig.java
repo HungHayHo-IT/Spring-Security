@@ -2,6 +2,8 @@ package com.example.spring_security.config;
 
 import com.example.spring_security.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import com.example.spring_security.exceptionhandling.CustomeAccessDeniedHandler;
+import com.example.spring_security.filter.AuthoritiesLoggingAfterFilter;
+import com.example.spring_security.filter.AuthoritiesLoggingAtFilter;
 import com.example.spring_security.filter.RequestValidationBeforeFilter;
 import com.example.spring_security.handler.CustomAuthenticationFailureHandler;
 import com.example.spring_security.handler.CustomAuthenticationSucessHandler;
@@ -64,6 +66,8 @@ public class ProjectSecurityConfig {
                     }
                 }))
                 .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new AuthoritiesLoggingAfterFilter() , BasicAuthenticationFilter.class)
+                .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
         .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
                 .csrf(csrfConfig->csrfConfig.disable());
         http.authorizeHttpRequests(request->request
