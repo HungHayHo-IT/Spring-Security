@@ -4,6 +4,7 @@ import com.example.spring_security.exceptionhandling.CustomBasicAuthenticationEn
 import com.example.spring_security.exceptionhandling.CustomeAccessDeniedHandler;
 import com.example.spring_security.filter.AuthoritiesLoggingAfterFilter;
 import com.example.spring_security.filter.AuthoritiesLoggingAtFilter;
+import com.example.spring_security.filter.CsrfCookieFilter;
 import com.example.spring_security.filter.RequestValidationBeforeFilter;
 import com.example.spring_security.handler.CustomAuthenticationFailureHandler;
 import com.example.spring_security.handler.CustomAuthenticationSucessHandler;
@@ -21,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -52,6 +55,9 @@ public class ProjectSecurityConfig {
 
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception{
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName("_csrf");
+
 
         http.cors(corsConfig->corsConfig.configurationSource(new CorsConfigurationSource() {
                     @Override
@@ -68,8 +74,16 @@ public class ProjectSecurityConfig {
                 .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(new AuthoritiesLoggingAfterFilter() , BasicAuthenticationFilter.class)
                 .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
-        .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
-                .csrf(csrfConfig->csrfConfig.disable());
+                .addFilterAfter(new CsrfCookieFilter() , BasicAuthenticationFilter.class)
+                .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
+                .csrf(csrfConfig->csrfConfig
+                        .csrfTokenRequestHandler(requestHandler)
+                        .ignoringRequestMatchers("/contact", "/notices", "/register", "/login")
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                );
+
+
+
         http.authorizeHttpRequests(request->request
                 .requestMatchers("/myAccount").hasRole("USER")
                 .requestMatchers("/myBalance").hasAnyRole("USER","ADMIN")
