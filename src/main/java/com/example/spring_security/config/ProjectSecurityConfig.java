@@ -2,10 +2,7 @@ package com.example.spring_security.config;
 
 import com.example.spring_security.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import com.example.spring_security.exceptionhandling.CustomeAccessDeniedHandler;
-import com.example.spring_security.filter.AuthoritiesLoggingAfterFilter;
-import com.example.spring_security.filter.AuthoritiesLoggingAtFilter;
-import com.example.spring_security.filter.CsrfCookieFilter;
-import com.example.spring_security.filter.RequestValidationBeforeFilter;
+import com.example.spring_security.filter.*;
 import com.example.spring_security.handler.CustomAuthenticationFailureHandler;
 import com.example.spring_security.handler.CustomAuthenticationSucessHandler;
 import com.example.spring_security.handler.CustomLogoutSuccessHandler;
@@ -17,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,6 +25,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -67,6 +66,7 @@ public class ProjectSecurityConfig {
                         config.setAllowedMethods(Collections.singletonList("*")); //Xác định các phương thức HTTP nào được cho phép. như: GET, POST, PUT, DELETE, ....
                         config.setAllowCredentials(true); //Cho phép trình duyệt gửi kèm các thông tin xác thực như Cookies hoặc header Authorization (như User/Pass trong Basic Auth).
                         config.setAllowedHeaders(Collections.singletonList("*")); //Cho phép tất cả các loại Header mà phía Frontend gửi lên
+                        config.setExposedHeaders(Arrays.asList("Authorization"));
                         config.setMaxAge(3600L);//Thiết lập thời gian (tính bằng giây) mà trình duyệt có thể "nhớ" cấu hình CORS này.
                         return config;
                     }
@@ -74,8 +74,10 @@ public class ProjectSecurityConfig {
                 .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
                 .addFilterAfter(new AuthoritiesLoggingAfterFilter() , BasicAuthenticationFilter.class)
                 .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
-                .addFilterAfter(new CsrfCookieFilter() , BasicAuthenticationFilter.class)
-                .sessionManagement(smc->smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true)) // het phien dang nhap chuyen den trang nay
+                .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
+                .securityContext(sessionConfig->sessionConfig.requireExplicitSave(false))
+                .sessionManagement(sessionConfig->sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))// khoong su dung session , Không tạo session mới,Không dùng session để lưu thông tin đăng nhập,Mỗi request phải tự mang thông tin xác thực (token
                 .csrf(csrfConfig->csrfConfig
                         .csrfTokenRequestHandler(requestHandler)
                         .ignoringRequestMatchers("/contact", "/notices", "/register", "/login")
